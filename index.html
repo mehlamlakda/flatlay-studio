@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Flatlay Studio — Loungewear AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="header-inner">
+      <div class="brand">
+        <span class="brand-icon">◈</span>
+        <span class="brand-name">Flatlay Studio</span>
+      </div>
+      <nav class="nav">
+        <a href="#generate" class="nav-link">Generate</a>
+        <a href="#gallery" class="nav-link">Gallery</a>
+        <a href="#settings" class="nav-link">Settings</a>
+      </nav>
+      <div class="api-status" id="api-status">
+        <span class="status-dot" id="status-dot"></span>
+        <span id="status-label">Not connected</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-inner">
+      <p class="hero-eyebrow">AI-Powered Product Photography</p>
+      <h1 class="hero-title">One click.<br/>Seven flatlays.</h1>
+      <p class="hero-sub">Set your preferences once — get studio-quality loungewear flatlay images instantly, powered by Gemini.</p>
+      <a href="#generate" class="hero-cta">Start Generating</a>
+    </div>
+    <div class="hero-visual">
+      <div class="floating-card fc1">Women's Co-ord</div>
+      <div class="floating-card fc2">Cotton · Floral</div>
+      <div class="floating-card fc3">7 images ready</div>
+      <div class="hero-grid">
+        <div class="hg-cell hg-big"></div>
+        <div class="hg-cell"></div>
+        <div class="hg-cell"></div>
+        <div class="hg-cell hg-wide"></div>
+        <div class="hg-cell"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MAIN GENERATE SECTION -->
+  <section class="main-section" id="generate">
+    <div class="container">
+
+      <!-- API KEY PANEL -->
+      <div class="panel api-panel" id="settings">
+        <div class="panel-header">
+          <div class="panel-title"><span class="panel-icon">⚙</span> API Configuration</div>
+          <span class="badge badge-required">Required</span>
+        </div>
+        <div class="api-row">
+          <div class="field-group" style="flex:1">
+            <label class="field-label">Gemini API Key</label>
+            <div class="input-wrap">
+              <input type="password" id="api-key" class="text-input" placeholder="AIza..." autocomplete="off" />
+              <button class="icon-btn" onclick="toggleKey()" title="Show/hide key">👁</button>
+            </div>
+            <p class="field-hint">Get your key at <a href="https://aistudio.google.com/app/apikey" target="_blank" class="link">aistudio.google.com</a>. Never shared or stored on any server.</p>
+          </div>
+          <button class="btn btn-primary" onclick="testConnection()">Test Connection</button>
+        </div>
+      </div>
+
+      <div class="two-col-layout">
+        <!-- LEFT: PREFERENCES -->
+        <div class="preferences-col">
+
+          <!-- PHOTO UPLOAD -->
+          <div class="panel">
+            <div class="panel-header">
+              <div class="panel-title"><span class="panel-icon">📸</span> Reference Photo</div>
+              <span class="badge badge-optional">Optional</span>
+            </div>
+            <div class="upload-zone" id="upload-zone" onclick="document.getElementById('file-input').click()" ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondrop="dropFile(event)">
+              <input type="file" id="file-input" accept="image/*" style="display:none" onchange="handleFile(event)" />
+              <div class="upload-content" id="upload-content">
+                <div class="upload-icon">⬆</div>
+                <p class="upload-title">Drop product photo here</p>
+                <p class="upload-sub">or click to browse · PNG, JPG, WEBP</p>
+              </div>
+              <div class="upload-preview" id="upload-preview" style="display:none">
+                <img id="preview-img" src="" alt="Reference" />
+                <div class="preview-overlay">
+                  <button class="remove-btn" onclick="removeImage(event)">✕ Remove</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- CATEGORY -->
+          <div class="panel">
+            <div class="panel-header">
+              <div class="panel-title"><span class="panel-icon">👗</span> Category</div>
+            </div>
+            <div class="chip-group" id="cat-group">
+              <button class="chip active" data-val="Women's Loungewear" onclick="selectChip(this,'cat-group')">Women's</button>
+              <button class="chip" data-val="Men's Loungewear" onclick="selectChip(this,'cat-group')">Men's</button>
+              <button class="chip" data-val="Kids Loungewear" onclick="selectChip(this,'cat-group')">Kids</button>
+            </div>
+          </div>
+
+          <!-- PRODUCT TYPE -->
+          <div class="panel">
+            <div class="panel-header">
+              <div class="panel-title"><span class="panel-icon">🧥</span> Product Type</div>
+            </div>
+            <div class="card-grid" id="type-group">
+              <button class="type-card active" data-val="Co-ord set (matching top and bottom)" onclick="selectCard(this,'type-group')">
+                <div class="type-icon">◫</div>
+                <span>Co-ord Set</span>
+              </button>
+              <button class="type-card" data-val="Pyjama set" onclick="selectCard(this,'type-group')">
+                <div class="type-icon">◑</div>
+                <span>Pyjama Set</span>
+              </button>
+              <button class="type-card" data-val="Shorts and top set" onclick="selectCard(this,'type-group')">
+                <div class="type-icon">◐</div>
+                <span>Shorts Set</span>
+              </button>
+              <button class="type-card" data-val="Hoodie and jogger set" onclick="selectCard(this,'type-group')">
+                <div class="type-icon">◈</div>
+                <span>Hoodie Set</span>
+              </button>
+              <button class="type-card" data-val="Nightgown" onclick="selectCard(this,'type-group')">
+                <div class="type-icon">◎</div>
+                <span>Nightgown</span>
+              </button>
+              <button class="type-card" data-val="Bathrobe" onclick="selectCard(this,'type-group')">
+                <div class="type-icon">◉</div>
+                <span>Robe</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- FABRIC -->
+          <div class="panel">
+            <div class="panel-header">
+              <div class="panel-title"><span class="panel-icon">🧵</span> Fabric</div>
+            </div>
+            <div class="chip-group" id="fabric-group">
+              <button class="chip active" data-val="100% soft cotton" onclick="selectChip(this,'fabric-group')">Cotton</button>
+              <button class="chip" data-val="silky modal fabric" onclick="selectChip(this,'fabric-group')">Modal</button>
+              <button class="chip" data-val="plush fleece fabric" onclick="selectChip(this,'fabric-group')">Fleece</button>
+              <button class="chip" data-val="breathable linen fabric" onclick="selectChip(this,'fabric-group')">Linen</button>
+              <button class="chip" data-val="luxurious satin fabric" onclick="selectChip(this,'fabric-group')">Satin</button>
+              <button class="chip" data-val="soft bamboo fabric" onclick="selectChip(this,'fabric-group')">Bamboo</button>
+            </div>
+          </div>
+
+          <!-- PRINT & PATTERN -->
+          <div class="panel">
+            <div class="panel-header">
+              <div class="panel-title"><span class="panel-icon">🎨</span> Print & Pattern</div>
+            </div>
+            <div class="chip-group" id="print-group">
+              <button class="chip active" data-val="solid colour" onclick="selectChip(this,'print-group')">Solid</button>
+              <button class="chip" data-val="classic checkered gingham print" onclick="selectChip(this,'print-group')">Checkered</button>
+              <button class="chip" data-val="delicate floral print" onclick="selectChip(this,'print-group')">Floral</button>
+              <button class="chip" data-val="pinstripe pattern" onclick="selectChip(this,'print-group')">Stripes</button>
+              <button class="chip" data-val="polka dot print" onclick="selectChip(this,'print-group')">Polka Dots</button>
+              <button class="chip" data-val="abstract geometric print" onclick="selectChip(this,'print-group')">Abstract</button>
+              <button class="chip" data-val="animal print" onclick="selectChip(this,'print-group')">Animal Print</button>
+            </div>
+          </div>
+
+          <!-- COLOUR TONE -->
+          <div class="panel">
+            <div class="panel-header">
+              <div class="panel-title"><span class="panel-icon">🎨</span> Colour Tone</div>
+            </div>
+            <div class="tone-grid" id="tone-group">
+              <button class="tone-btn active" data-val="warm neutral earthy tones like beige, camel and terracotta" onclick="selectChip(this,'tone-group')">
+                <div class="swatch" style="background:linear-gradient(135deg,#e8dcc8,#c9b99a,#a89070)"></div>
+                <span>Earthy Neutral</span>
+              </button>
+              <button class="tone-btn" data-val="soft pastel tones like blush pink, lavender and mint" onclick="selectChip(this,'tone-group')">
+                <div class="swatch" style="background:linear-gradient(135deg,#f9d6d6,#d6eaf8,#d5f5e3)"></div>
+                <span>Soft Pastel</span>
+              </button>
+              <button class="tone-btn" data-val="bold vibrant bright colours" onclick="selectChip(this,'tone-group')">
+                <div class="swatch" style="background:linear-gradient(135deg,#e74c3c,#f39c12,#2ecc71)"></div>
+                <span>Bold & Bright</span>
+              </button>
+              <button class="tone-btn" data-val="monochrome black and white" onclick="selectChip(this,'tone-group')">
+                <div class="swatch" style="background:linear-gradient(135deg,#1a1a1a,#888,#f5f5f5)"></div>
+                <span>Monochrome</span>
+              </button>
+              <button class="tone-btn" data-val="dusty muted sage green and clay tones" onclick="selectChip(this,'tone-group')">
+                <div class="swatch" style="background:linear-gradient(135deg,#8fad88,#b5a898,#c4b5a0)"></div>
+                <span>Sage & Clay</span>
+              </button>
+              <button class="tone-btn" data-val="deep jewel tones like emerald, sapphire and burgundy" onclick="selectChip(this,'tone-group')">
+                <div class="swatch" style="background:linear-gradient(135deg,#1b4332,#1d3557,#6d2b3d)"></div>
+                <span>Jewel Tones</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- BACKGROUND -->
+          <div class="panel">
+            <div class="panel-header">
+              <div class="panel-title"><span class="panel-icon">🖼</span> Background</div>
+            </div>
+            <div class="card-grid" id="bg-group">
+              <button class="type-card active" data-val="clean white seamless background" onclick="selectCard(this,'bg-group')">
+                <div class="type-icon" style="color:#ccc">◻</div>
+                <span>White</span>
+              </button>
+              <button class="type-card" data-val="light grey marble surface" onclick="selectCard(this,'bg-group')">
+                <div class="type-icon" style="color:#aaa">◼</div>
+                <span>Marble</span>
+              </button>
+              <button class="type-card" data-val="rustic warm wooden surface" onclick="selectCard(this,'bg-group')">
+                <div class="type-icon" style="color:#a0724a">◼</div>
+                <span>Wood</span>
+              </button>
+              <button class="type-card" data-val="soft linen textured surface" onclick="selectCard(this,'bg-group')">
+                <div class="type-icon" style="color:#d4c4a8">◼</div>
+                <span>Linen</span>
+              </button>
+              <button class="type-card" data-val="pastel pink background" onclick="selectCard(this,'bg-group')">
+                <div class="type-icon" style="color:#f4b8c1">◼</div>
+                <span>Blush Pink</span>
+              </button>
+              <button class="type-card" data-val="sage green background" onclick="selectCard(this,'bg-group')">
+                <div class="type-icon" style="color:#8fad88">◼</div>
+                <span>Sage Green</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- PROPS -->
+          <div class="panel">
+            <div class="panel-header">
+              <div class="panel-title"><span class="panel-icon">✨</span> Styling Props</div>
+              <span class="badge badge-optional">Multi-select</span>
+            </div>
+            <div class="chip-group" id="props-group">
+              <button class="chip multi" data-val="a steaming cup of tea" onclick="toggleMulti(this)">Tea Cup</button>
+              <button class="chip multi" data-val="a scented pillar candle" onclick="toggleMulti(this)">Candle</button>
+              <button class="chip multi" data-val="fresh white flowers" onclick="toggleMulti(this)">Flowers</button>
+              <button class="chip multi" data-val="an open book" onclick="toggleMulti(this)">Book</button>
+              <button class="chip multi" data-val="fluffy slippers" onclick="toggleMulti(this)">Slippers</button>
+              <button class="chip multi" data-val="warm fairy lights" onclick="toggleMulti(this)">Fairy Lights</button>
+              <button class="chip multi" data-val="a small succulent plant" onclick="toggleMulti(this)">Plant</button>
+              <button class="chip multi" data-val="eucalyptus sprigs" onclick="toggleMulti(this)">Eucalyptus</button>
+            </div>
+          </div>
+
+          <!-- LIGHTING -->
+          <div class="panel">
+            <div class="panel-header">
+              <div class="panel-title"><span class="panel-icon">☀</span> Lighting</div>
+            </div>
+            <div class="chip-group" id="light-group">
+              <button class="chip active" data-val="soft natural daylight, airy and bright" onclick="selectChip(this,'light-group')">Natural Daylight</button>
+              <button class="chip" data-val="warm golden hour light" onclick="selectChip(this,'light-group')">Golden Hour</button>
+              <button class="chip" data-val="cool overcast diffused light" onclick="selectChip(this,'light-group')">Overcast</button>
+              <button class="chip" data-val="warm studio softbox lighting" onclick="selectChip(this,'light-group')">Studio Light</button>
+            </div>
+          </div>
+
+          <!-- COUNT -->
+          <div class="panel">
+            <div class="panel-header">
+              <div class="panel-title"><span class="panel-icon">🔢</span> Images to Generate</div>
+            </div>
+            <div class="count-row">
+              <button class="count-btn" onclick="changeCount(-1)">−</button>
+              <span class="count-num" id="count-num">6</span>
+              <button class="count-btn" onclick="changeCount(1)">+</button>
+              <span class="count-label">images per session</span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- RIGHT: GENERATE + OUTPUT -->
+        <div class="output-col">
+          <div class="sticky-output">
+
+            <!-- PROMPT PREVIEW -->
+            <div class="panel prompt-panel">
+              <div class="panel-header">
+                <div class="panel-title"><span class="panel-icon">📝</span> Auto-built Prompt</div>
+                <button class="icon-btn-sm" onclick="copyPromptPreview()" title="Copy prompt">⎘ Copy</button>
+              </div>
+              <div class="prompt-text" id="prompt-preview">Select your preferences to see the prompt...</div>
+            </div>
+
+            <!-- GENERATE BUTTON -->
+            <button class="generate-btn" id="gen-btn" onclick="generate()">
+              <span class="gen-icon">◈</span>
+              <span id="gen-label">Generate Flatlays</span>
+              <span class="gen-count" id="gen-count">6 images</span>
+            </button>
+
+            <div id="progress-section" style="display:none">
+              <div class="progress-bar-wrap">
+                <div class="progress-bar" id="progress-bar"></div>
+              </div>
+              <p class="progress-text" id="progress-text">Starting generation...</p>
+            </div>
+
+            <!-- OUTPUT GRID -->
+            <div id="output-section" style="display:none">
+              <div class="output-header">
+                <div class="panel-title">Generated Images</div>
+                <button class="btn-sm" onclick="downloadAll()">⬇ Download All</button>
+              </div>
+              <div class="output-grid" id="output-grid"></div>
+            </div>
+
+            <!-- GALLERY PLACEHOLDER -->
+            <div class="gallery-hint" id="gallery" style="margin-top:2rem">
+              <p class="hint-text">Generated images will appear here and save to your session gallery below.</p>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- GALLERY -->
+      <div class="gallery-section" id="gallery-section" style="display:none">
+        <div class="section-header">
+          <h2 class="section-title">Session Gallery</h2>
+          <button class="btn-sm" onclick="clearGallery()">Clear All</button>
+        </div>
+        <div class="gallery-grid" id="gallery-grid"></div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <span class="brand-name" style="opacity:0.5">◈ Flatlay Studio</span>
+      <p>Built for loungewear brands · Powered by Gemini AI · Host on GitHub Pages</p>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
